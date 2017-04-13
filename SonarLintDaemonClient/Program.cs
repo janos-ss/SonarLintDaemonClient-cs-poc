@@ -33,7 +33,7 @@ namespace SonarLintDaemonClient
             var inputFile1 = new InputFile();
             inputFile1.Path = Path.Combine(resourcesBasePath, "Hello.java");
             inputFile1.Charset = "UTF-8";
-            inputFile1.UserObject = "joe";
+            //inputFile1.UserObject = "joe";
 
             var inputFile2 = new InputFile();
             inputFile2.Path = Path.Combine(resourcesBasePath, "Hello.js");
