@@ -3,19 +3,26 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Grpc.Core;
 using Sonarlint;
+using System.IO;
 
 namespace SonarLintDaemonClient
 {
     class Program
     {
+        static readonly string DAEMON_HOST = "localhost";
+        static readonly int DAEMON_PORT = 8050;
+
         static void Main(string[] args)
         {
-            var config = new StandaloneConfiguration();
-            config.HomePath = @"c:/work/tmp/daemon/dot.sonarlint";
-            config.PluginUrl.Add("file:/c:/dev/git/sonar/sonarlint-intellij/build/idea-sandbox/plugins/SonarLint/classes/plugins/sonar-java-plugin-4.2.1.6971.jar");
-            config.PluginUrl.Add("file:/c:/dev/git/sonar/sonarlint-intellij/build/idea-sandbox/plugins/SonarLint/classes/plugins/sonar-javascript-plugin-2.18.0.3454.jar");
+            var tmpdir = Path.Combine(Path.GetTempPath(), "SonarLintDaemonClient");
+            var resourcesBasePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../resources"));
 
-            var channel = new Channel("127.0.0.1:8050", ChannelCredentials.Insecure);
+            var config = new StandaloneConfiguration();
+            config.HomePath = Path.Combine(tmpdir, "dot.sonarlint");
+            config.PluginUrl.Add(ToJavaUrlString(Path.Combine(resourcesBasePath, "sonar-java-plugin-4.2.1.6971.jar")));
+            config.PluginUrl.Add(ToJavaUrlString(Path.Combine(resourcesBasePath, "sonar-javascript-plugin-2.18.0.3454.jar")));
+
+            var channel = new Channel(string.Join(":", DAEMON_HOST, DAEMON_PORT), ChannelCredentials.Insecure);
             var client = new StandaloneSonarLint.StandaloneSonarLintClient(channel);
             client.Start(config);
 
@@ -24,13 +31,14 @@ namespace SonarLintDaemonClient
             Console.WriteLine("rule details = " + details);
 
             var inputFile = new InputFile();
-            inputFile.Path = "c:/dev/git/sonar/sonarlint-core/core/src/main/java/org/sonarsource/sonarlint/core/container/storage/Hello.java";
+            inputFile.Path = Path.Combine(resourcesBasePath, "Hello.java");
             inputFile.Charset = "UTF-8";
             inputFile.UserObject = "joe";
 
             var request = new AnalysisReq();
-            request.BaseDir = "c:/work/tmp/daemon";
-            request.WorkDir = "c:/work/tmp/daemon";
+            request.BaseDir = Path.Combine(tmpdir, "dummy-basedir");
+            Directory.CreateDirectory(request.BaseDir);
+            request.WorkDir = Path.Combine(tmpdir, "dummy-workdir");
             request.File.Add(inputFile);
 
             using (var call = client.Analyze(request))
@@ -48,6 +56,11 @@ namespace SonarLintDaemonClient
                 Issue issue = call.ResponseStream.Current;
                 Console.WriteLine(issue);
             }
+        }
+
+        private static string ToJavaUrlString(string path)
+        {
+            return "file:/" + path;
         }
     }
 }
