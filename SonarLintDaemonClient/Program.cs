@@ -37,8 +37,9 @@ namespace SonarLintDaemonClient
 
             var inputFile2 = new InputFile();
             inputFile2.Path = Path.Combine(resourcesBasePath, "Hello.js");
+            inputFile2.Path = @"c:/Users/Janos Gyerik/Documents/Visual Studio 2015/Projects/SonarLintDaemonClient/resources/Hello.js";
             inputFile2.Charset = "UTF-8";
-            inputFile2.UserObject = "jack";
+            //inputFile2.UserObject = "jack";
 
             var request = new AnalysisReq();
             request.BaseDir = Path.Combine(tmpdir, "dummy-basedir");
