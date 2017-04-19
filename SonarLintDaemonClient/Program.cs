@@ -30,23 +30,17 @@ namespace SonarLintDaemonClient
             var details = client.GetRuleDetails(new RuleKey { Key = "squid:S1602" });
             Console.WriteLine("rule details = " + details);
 
-            var inputFile1 = new InputFile();
-            inputFile1.Path = Path.Combine(resourcesBasePath, "Hello.java");
-            inputFile1.Charset = "UTF-8";
-            //inputFile1.UserObject = "joe";
-
-            var inputFile2 = new InputFile();
-            inputFile2.Path = Path.Combine(resourcesBasePath, "Hello.js");
-            inputFile2.Path = @"c:/Users/Janos Gyerik/Documents/Visual Studio 2015/Projects/SonarLintDaemonClient/resources/Hello.js";
-            inputFile2.Charset = "UTF-8";
+            var inputFile = new InputFile();
+            inputFile.Path = Path.Combine(resourcesBasePath, "Hello.js");
+            inputFile.Path = @"c:/Users/Janos Gyerik/Documents/Visual Studio 2015/Projects/SonarLintDaemonClient/resources/Hello.js";
+            inputFile.Charset = "UTF-8";
             //inputFile2.UserObject = "jack";
 
             var request = new AnalysisReq();
             request.BaseDir = Path.Combine(tmpdir, "dummy-basedir");
             Directory.CreateDirectory(request.BaseDir);
             request.WorkDir = Path.Combine(tmpdir, "dummy-workdir");
-            request.File.Add(inputFile1);
-            request.File.Add(inputFile2);
+            request.File.Add(inputFile);
 
             using (var call = client.Analyze(request))
             {
