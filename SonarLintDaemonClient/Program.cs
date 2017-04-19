@@ -17,17 +17,11 @@ namespace SonarLintDaemonClient
             var tmpdir = Path.Combine(Path.GetTempPath(), "SonarLintDaemonClient");
             var resourcesBasePath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "../../../resources"));
 
-            var config = new StandaloneConfiguration();
-            config.HomePath = Path.Combine(tmpdir, "dot.sonarlint");
-            config.PluginUrl.Add(ToJavaUrlString(Path.Combine(resourcesBasePath, "sonar-java-plugin-4.2.1.6971.jar")));
-            config.PluginUrl.Add(ToJavaUrlString(Path.Combine(resourcesBasePath, "sonar-javascript-plugin-2.18.0.3454.jar")));
-
             var channel = new Channel(string.Join(":", DAEMON_HOST, DAEMON_PORT), ChannelCredentials.Insecure);
             var client = new StandaloneSonarLint.StandaloneSonarLintClient(channel);
-            client.Start(config);
 
             // sanity check ...
-            var details = client.GetRuleDetails(new RuleKey { Key = "squid:S1602" });
+            var details = client.GetRuleDetails(new RuleKey { Key = "javascript:S2757" });
             Console.WriteLine("rule details = " + details);
 
             var inputFile = new InputFile();
@@ -57,11 +51,6 @@ namespace SonarLintDaemonClient
                 Issue issue = call.ResponseStream.Current;
                 Console.WriteLine(issue);
             }
-        }
-
-        private static string ToJavaUrlString(string path)
-        {
-            return "file:/" + path;
         }
     }
 }
